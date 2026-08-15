@@ -11,53 +11,43 @@ import (
 
 func main() {
 
-	counter := 0
+	alph, counter, word, myHiddenWord := initFunc()
+
+	for {
+
+		if counter >= 6 {
+			fmt.Println("Проигрыш")
+			return
+		}
+
+		if word == myHiddenWord {
+			fmt.Println("Вы отгадали слово! Победа!", myHiddenWord)
+			return
+		}
+
+		gameLogick(word, &counter, &myHiddenWord, alph)
+
+	}
+}
+
+func initFunc() (map[string]bool, int, string, string) {
+
 	agreement()
+
 	word := *getWord()
 	fmt.Println(word)
 	num := getNumLetters(word)
-
 	fmt.Println("Длина слова:", num)
 
 	myHiddenWord := createHiddenWord(num)
-
 	fmt.Println(myHiddenWord)
 
 	alph := createAlph()
 
-	fmt.Println(alph)
+	counter := 0
 
-	gameLogick(word, &counter, myHiddenWord)
-
-	// ans := gessing(letter, word, &counter)
-
-	// if ans {
-	// 	posIdx := getLetterIndices(word, letter)
-	// 	myHiddenWord = *updateHiddenWord(posIdx, &myHiddenWord, letter)
-	// 	fmt.Println(myHiddenWord)
-	// }
-
-	// getCounter(&counter)
-
+	return alph, counter, word, myHiddenWord
 }
-
-
-// func askLetter() string {
-// 	fmt.Println("Загадайте букву")
-
-// 	scanner := bufio.NewScanner((os.Stdin))
-
-// 	ok := scanner.Scan()
-// 	if !ok {
-// 		fmt.Println("ошибка ввода")
-// 		return "-1"
-// 	}
-
-// 	letter := scanner.Text()
-// 	ok = validLetter(letter); if !ok {return "-1"}
-
-// 	return letter
-// }
 
 func askLetter() string {
 
@@ -68,7 +58,7 @@ func askLetter() string {
 
 		if !scanner.Scan() {
 			fmt.Println("Ошибка ввода, попробуйте еще раз.")
-			continue 
+			continue
 		}
 
 		letter := scanner.Text()
@@ -76,36 +66,36 @@ func askLetter() string {
 		if validLetter(letter) {
 			return letter
 		}
-		
+
 	}
 }
 
 func validLetter(letter string) bool {
 	if utf8.RuneCountInString(letter) == 1 {
 		return true
-	} 
-	
+	}
+
 	fmt.Println("Ошибка: Можно ввести только одну букву!")
 	return false
 }
 
+func gameLogick(word string, counter *int, myHiddenWord *string, alph map[string]bool) {
 
-func gameLogick(word string, counter *int, myHiddenWord string) {
+	getAlph(alph)
 
 	letter := askLetter()
-	if letter == "-1"{
-		askLetter()
-	}
 
 	ans := gessing(letter, word, counter)
 
 	if ans {
 		posIdx := getLetterIndices(word, letter)
-		myHiddenWord = *updateHiddenWord(posIdx, &myHiddenWord, letter)
-		fmt.Println(myHiddenWord)
+		*myHiddenWord = *updateHiddenWord(posIdx, myHiddenWord, letter)
+		fmt.Println(*myHiddenWord)
 	}
 
 	getCounter(counter)
+
+	updateAlph(alph, letter)
 
 }
 
@@ -177,11 +167,17 @@ func updateHiddenWord(posIdx []int, myHiddenWord *string, letter string) *string
 	return &str
 }
 
-func getAlph(alph *map[string]bool) {
+func updateAlph(alph map[string]bool, letter string) {
 
+	alph[letter] = false
 }
 
-func createAlph() *map[string]bool {
+func getAlph(alph map[string]bool) {
+
+	fmt.Println(alph)
+}
+
+func createAlph() map[string]bool {
 
 	alphabetMap := make(map[string]bool)
 
@@ -190,7 +186,7 @@ func createAlph() *map[string]bool {
 		alphabetMap[string(char)] = true
 	}
 
-	return &alphabetMap
+	return alphabetMap
 }
 
 func gessing(letter string, word string, c *int) bool {
